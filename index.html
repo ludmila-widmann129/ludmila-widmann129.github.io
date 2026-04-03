@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ELE · Actividades</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #008080;   /* teal de fondo tipo Win95 */
+      --win-bg:    #C0C0C0;   /* gris clásico de ventana  */
+      --win-dark:  #808080;
+      --win-darker:#404040;
+      --win-light: #FFFFFF;
+      --title-bar: #000080;   /* azul oscuro de barra de título */
+      --title-txt: #FFFFFF;
+      --text:      #000000;
+      --text-2:    #404040;
+      --btn-face:  #C0C0C0;
+      --err-bg:    #FF0000;
+      --err-txt:   #FFFFFF;
+      --ok-bg:     #008000;
+      --ok-txt:    #FFFFFF;
+      --warn-bg:   #808000;
+      --warn-txt:  #FFFFFF;
+      --highlight: #000080;
+      --highlight-txt: #FFFFFF;
+      --tag-num:   #000080;
+      --tag-verb:  #800000;
+      --tag-pron:  #000080;
+      --tag-orden: #800080;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      font-size: 20px;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 20px;
+      background-image: radial-gradient(circle, #006666 1px, transparent 1px);
+      background-size: 24px 24px;
+      zoom: 1.5;
+    }
+
+    /* ── BORDE 3D estilo Win95 ── */
+    .raised {
+      border-top:    2px solid var(--win-light);
+      border-left:   2px solid var(--win-light);
+      border-right:  2px solid var(--win-darker);
+      border-bottom: 2px solid var(--win-darker);
+    }
+    .sunken {
+      border-top:    2px solid var(--win-darker);
+      border-left:   2px solid var(--win-darker);
+      border-right:  2px solid var(--win-light);
+      border-bottom: 2px solid var(--win-light);
+    }
+
+    /* ── VENTANA PRINCIPAL ── */
+    .main-window {
+      max-width: 900px;
+      margin: 0 auto;
+      background: var(--win-bg);
+    }
+    .main-window.raised {
+      border-top:    2px solid var(--win-light);
+      border-left:   2px solid var(--win-light);
+      border-right:  2px solid var(--win-darker);
+      border-bottom: 2px solid var(--win-darker);
+    }
+
+    /* ── BARRA DE TÍTULO ── */
+    .title-bar {
+      background: linear-gradient(to right, var(--title-bar), #1084d0);
+      padding: 3px 4px 3px 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      user-select: none;
+    }
+    .title-bar-text {
+      color: var(--title-txt);
+      font-weight: bold;
+      font-size: 12px;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .title-icon { font-size: 14px; }
+    .title-buttons { display: flex; gap: 2px; }
+    .title-btn {
+      width: 16px;
+      height: 14px;
+      background: var(--btn-face);
+      border-top:    1px solid var(--win-light);
+      border-left:   1px solid var(--win-light);
+      border-right:  1px solid var(--win-darker);
+      border-bottom: 1px solid var(--win-darker);
+      font-size: 9px;
+      cursor: default;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+
+    /* ── MENÚ BAR ── */
+    .menu-bar {
+      background: var(--win-bg);
+      padding: 2px 4px;
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--win-dark);
+    }
+    .menu-item {
+      padding: 2px 8px;
+      font-size: 12px;
+      cursor: default;
+      color: var(--text);
+    }
+    .menu-item:hover {
+      background: var(--highlight);
+      color: var(--highlight-txt);
+    }
+
+    /* ── BREADCRUMB / STATUS ── */
+    .status-bar {
+      background: var(--win-bg);
+      border-top: 1px solid var(--win-dark);
+      padding: 3px 6px;
+      display: flex;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--text-2);
+    }
+    .status-panel {
+      border-top:   1px solid var(--win-darker);
+      border-left:  1px solid var(--win-darker);
+      border-right: 1px solid var(--win-light);
+      border-bottom:1px solid var(--win-light);
+      padding: 1px 6px;
+      flex: 1;
+    }
+    .status-panel span { color: var(--title-bar); font-weight: bold; }
+
+    /* ── CONTENIDO INTERIOR ── */
+    .win-content {
+      padding: 12px;
+    }
+
+    /* ── TÍTULOS ── */
+    .win-h2 {
+      font-size: 14px;
+      font-weight: bold;
+      color: var(--title-bar);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .win-h2::before {
+      content: '';
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      background: var(--title-bar);
+    }
+    .win-p {
+      font-size: 12px;
+      color: var(--text-2);
+      margin-bottom: 12px;
+      padding-left: 16px;
+    }
+
+    /* ── GRIDS DE BOTONES ── */
+    .level-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .topic-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    /* ── BOTÓN NIVEL (grande) ── */
+    .level-btn {
+      background: var(--win-bg);
+      border-top:    2px solid var(--win-light);
+      border-left:   2px solid var(--win-light);
+      border-right:  2px solid var(--win-darker);
+      border-bottom: 2px solid var(--win-darker);
+      padding: 10px 12px;
+      cursor: pointer;
+      text-align: left;
+      font-family: 'Arial', sans-serif;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .level-btn:active {
+      border-top:    2px solid var(--win-darker);
+      border-left:   2px solid var(--win-darker);
+      border-right:  2px solid var(--win-light);
+      border-bottom: 2px solid var(--win-light);
+    }
+    .level-btn:hover { background: #D4D0C8; }
+    .lv-code {
+      font-size: 22px;
+      font-weight: bold;
+      color: var(--title-bar);
+      font-family: 'Courier New', monospace;
+    }
+    .lv-name { font-size: 12px; color: var(--text); font-weight: bold; }
+    .lv-count { font-size: 11px; color: var(--text-2); }
+
+    /* ── BOTÓN TEMA ── */
+    .topic-btn {
+      background: var(--win-bg);
+      border-top:    2px solid var(--win-light);
+      border-left:   2px solid var(--win-light);
+      border-right:  2px solid var(--win-darker);
+      border-bottom: 2px solid var(--win-darker);
+      padding: 8px 10px;
+      cursor: pointer;
+      text-align: left;
+      font-family: 'Arial', sans-serif;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .topic-btn:active {
+      border-top:    2px solid var(--win-darker);
+      border-left:   2px solid var(--win-darker);
+      border-right:  2px solid var(--win-light);
+      border-bottom: 2px solid var(--win-light);
+    }
+    .topic-btn:hover { background: #D4D0C8; }
+    .t-icon { font-size: 18px; }
+    .t-name { font-size: 12px; font-weight: bold; color: var(--text); }
+    .t-count { font-size: 11px; color: var(--text-2); }
+
+    /* ── BOTÓN ALEATORIO ── */
+    .random-btn {
+      width: 100%;
+      background: var(--win-bg);
+      border-top:    2px solid var(--win-light);
+      border-left:   2px solid var(--win-light);
+      border-right:  2px solid var(--win-darker);
+      border-bottom: 2px solid var(--win-darker);
+      padding: 7px 12px;
+      cursor: pointer;
+      font-family: 'Arial', sans-serif;
+      font-size: 12px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 6px;
+      text-align: left;
+    }
+    .random-btn:active {
+      border-top:    2px solid var(--win-darker);
+      border-left:   2px solid var(--win-darker);
+      border-right:  2px solid var(--win-light);
+      border-bottom: 2px solid var(--win-light);
+    }
+    .random-btn:hover { background: #D4D0C8; }
+    .r-icon { font-size: 16px; }
+    .r-text { flex: 1; }
+    .r-sub { font-size: 10px; color: var(--text-2); font-weight: normal; display: block; }
+
+    /* ── BOTONES VOLVER / ACCIÓN ── */
+    .win-btn {
+      background: var(--win-bg);
+      border-top:    2px solid var(--win-light);
+      border-left:   2px solid var(--win-light);
+      border-right:  2px solid var(--win-darker);
+      border-bottom: 2px solid var(--win-darker);
+      padding: 4px 12px;
+      cursor: pointer;
+      font-family: 'Arial', sans-serif;
+      font-size: 12px;
+      min-width: 75px;
+    }
+    .win-btn:active {
+      border-top:    2px solid var(--win-darker);
+      border-left:   2px solid var(--win-darker);
+      border-right:  2px solid var(--win-light);
+      border-bottom: 2px solid var(--win-light);
+      padding: 5px 11px 3px 13px;
+    }
+    .win-btn:hover { background: #D4D0C8; }
+
+    /* ── TOPBAR EJERCICIOS ── */
+    .ex-topbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--win-dark);
+    }
+    .ex-title-wrap { flex: 1; }
+    .ex-title {
+      font-size: 13px;
+      font-weight: bold;
+      color: var(--title-bar);
+    }
+    .ex-subtitle {
+      font-size: 11px;
+      color: var(--text-2);
+    }
+    .random-reveal {
+      background: var(--title-bar);
+      color: #fff;
+      font-size: 10px;
+      padding: 1px 6px;
+      margin-left: 5px;
+      font-weight: normal;
+    }
+
+    /* ── TARJETA EJERCICIO ── */
+    .item-card {
+      background: var(--win-light);
+      border-top:    2px solid var(--win-darker);
+      border-left:   2px solid var(--win-darker);
+      border-right:  2px solid var(--win-light);
+      border-bottom: 2px solid var(--win-light);
+      padding: 10px 12px;
+      margin-bottom: 8px;
+    }
+    .item-num {
+      font-size: 10px;
+      color: var(--text-2);
+      font-weight: bold;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    /* badge */
+    .badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: bold;
+      padding: 1px 7px;
+      margin-bottom: 6px;
+      color: #fff;
+    }
+    .badge-num   { background: var(--tag-num); }
+    .badge-verb  { background: var(--tag-verb); }
+    .badge-pron  { background: var(--tag-pron); }
+    .badge-orden { background: var(--tag-orden); }
+    .badge-prep  { background: #006000; }
+
+    .item-sentence {
+      font-size: 13px;
+      line-height: 1.65;
+      margin-bottom: 10px;
+      font-family: 'Times New Roman', serif;
+    }
+    .item-sentence .error {
+      background: #FFFF00;
+      color: #000;
+      text-decoration: underline;
+      text-decoration-color: #FF0000;
+      text-underline-offset: 3px;
+      padding: 0 2px;
+    }
+
+    /* ── INPUT Y BOTÓN COMPROBAR ── */
+    .input-row {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .corr-input {
+      flex: 1;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      padding: 3px 6px;
+      background: var(--win-light);
+      color: var(--text);
+      border-top:    2px solid var(--win-darker);
+      border-left:   2px solid var(--win-darker);
+      border-right:  2px solid var(--win-light);
+      border-bottom: 2px solid var(--win-light);
+      outline: none;
+    }
+    .corr-input:focus {
+      outline: 1px dotted var(--title-bar);
+      outline-offset: 1px;
+    }
+    .corr-input::placeholder { color: #999; font-style: italic; }
+    .check-btn { /* reutiliza .win-btn */ }
+
+    /* ── FEEDBACK ── */
+    .feedback {
+      font-size: 12px;
+      margin-top: 7px;
+      padding: 4px 8px;
+      display: none;
+      font-weight: bold;
+    }
+    .feedback.correct   { background: var(--ok-bg);   color: var(--ok-txt);   display: block; }
+    .feedback.incorrect { background: var(--err-bg);  color: var(--err-txt);  display: block; }
+    .feedback.show-ans  { background: var(--warn-bg); color: var(--warn-txt); display: block; }
+
+    .note {
+      font-size: 11px;
+      color: var(--text-2);
+      margin-top: 5px;
+      padding-left: 8px;
+      border-left: 3px solid var(--win-dark);
+      line-height: 1.5;
+    }
+
+    /* ── ACCIONES INFERIORES ── */
+    .ex-actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px solid var(--win-dark);
+    }
+
+    /* ── PUNTUACIÓN ── */
+    .score-bar {
+      margin-top: 8px;
+      background: var(--win-bg);
+      border-top:    2px solid var(--win-darker);
+      border-left:   2px solid var(--win-darker);
+      border-right:  2px solid var(--win-light);
+      border-bottom: 2px solid var(--win-light);
+      padding: 8px 12px;
+      display: none;
+      align-items: baseline;
+      gap: 8px;
+    }
+    .score-bar.visible { display: flex; }
+    .score-num {
+      font-family: 'Courier New', monospace;
+      font-size: 20px;
+      font-weight: bold;
+      color: var(--title-bar);
+    }
+    .score-label { font-size: 12px; color: var(--text-2); }
+
+    /* ── SELECTOR SCREEN ── */
+    .selector-screen { display: none; }
+    .selector-screen.active { display: block; }
+    .exercise-screen { display: none; }
+    .exercise-screen.active { display: block; }
+
+    /* ── SEPARADOR ── */
+    .win-hr {
+      border: none;
+      border-top: 1px solid var(--win-darker);
+      border-bottom: 1px solid var(--win-light);
+      margin: 8px 0;
+    }
+
+    @media (max-width: 480px) {
+      .level-grid, .topic-grid { grid-template-columns: 1fr; }
+      body { padding: 4px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="main-window raised">
+
+  <!-- BARRA DE TÍTULO -->
+  <div class="title-bar">
+    <div class="title-bar-text">
+      <span class="title-icon">📚</span>
+      Actividades para la clase de español
+    </div>
+    <div class="title-buttons">
+      <div class="title-btn">_</div>
+      <div class="title-btn">□</div>
+      <div class="title-btn">✕</div>
+    </div>
+  </div>
+
+  <!-- CONTENIDO -->
+  <div class="win-content">
+
+    <!-- ══ NIVEL ══ -->
+    <div id="level-screen">
+      <div class="win-h2">Seleccionar tu nivel</div>
+      <div class="win-p">Hacer clic en tu nivel.</div>
+      <div class="level-grid" id="level-grid"></div>
+    </div>
+
+    <!-- ══ TEMAS ══ -->
+    <div class="selector-screen" id="selector-screen">
+      <div style="display:flex; align-items:center; gap:6px; margin-bottom:10px;">
+        <button class="win-btn" onclick="goBackToLevels()">◄ Niveles</button>
+      </div>
+      <div class="win-h2" id="selector-title"></div>
+      <div class="win-p" id="selector-desc"></div>
+      <div class="topic-grid" id="topic-grid"></div>
+      <hr class="win-hr">
+      <button class="random-btn" onclick="startRandom()">
+        <span class="r-icon">🔃</span>
+        <span class="r-text">
+          Aleatorio
+          <span class="r-sub">randomizar</span>
+        </span>
+      </button>
+    </div>
+
+    <!-- ══ EJERCICIOS ══ -->
+    <div class="exercise-screen" id="exercise-screen">
+      <div class="ex-topbar">
+        <button class="win-btn" onclick="goBackToTopics()">◄ Volver</button>
+        <div class="ex-title-wrap">
+          <div class="ex-title" id="ex-title"></div>
+          <div class="ex-subtitle" id="ex-subtitle"></div>
+        </div>
+      </div>
+      <div class="win-p" id="ex-desc" style="margin-bottom:10px;"></div>
+      <div id="items-container"></div>
+      <div class="ex-actions">
+        <button class="win-btn" onclick="showAll()">Ver respuestas</button>
+        <button class="win-btn" onclick="calcScore()">Puntuación</button>
+        <button class="win-btn" onclick="resetExercise()">Reiniciar</button>
+      </div>
+      <div class="score-bar" id="score-bar">
+        <span class="score-num" id="score-num"></span>
+        <span class="score-label" id="score-label"></span>
+      </div>
+    </div>
+
+  </div><!-- /win-content -->
+
+  <!-- BARRA DE ESTADO -->
+  <div class="status-bar">
+    <div class="status-panel" id="status-panel">Listo</div>
+    <div class="status-panel" style="flex:0; min-width:90px; text-align:center" id="status-level"></div>
+  </div>
+
+</div><!-- /main-window -->
+
+<script>
+// ══════════════════════════════════════════════════════════
+//  DATOS — mismos que VERSION-3, sin cambios
+// ══════════════════════════════════════════════════════════
+const levels = [
+  {
+    id: "A1",
+    name: "Básico",
+    topics: [
+      {
+        id: "numero",
+        name: "Número",
+        icon: "🙂",
+        badge: "badge-num",
+        label: "Número",
+        desc: "Marcar el error de número (singular / plural) y escribir la respuesta correcta. ¡Importante! no hay errores en todas. Entonces, escribir 'correcto'",
+        items: [
+          {
+            sentence: 'Necesito comprar <span class="error">una manzanas</span> en el mercado.',
+            accept: ["una manzana", "manzanas", "unas manzanas"],
+            ideal: "una manzana",
+            note: "El artículo 'una' es singular = sustantivo 'manzana' en singular: una manzana. O en plural 'unas manzanas'"
+          },
+          {
+            sentence: '<span class="error">Los lunes</span> voy al gimnasio.',
+            accept: ["los lunes", "correcto", "el lunes"],
+            ideal: "correcto",
+            note: "'Los lunes' es correcto. Los días de la semana en plural = rutina o hábito. 'El lunes' es correcto también = un solo dia"
+          },
+          {
+            sentence: '<span class="error">Las luz</span> del cuarto está apagada.',
+            accept: ["la luz"],
+            ideal: "la luz",
+            note: "'Luz' es un sustantivo singular femenino. El artículo es: la luz."
+          },
+          {
+            sentence: 'Hay <span class="error">tres silla</span> en la cocina.',
+            accept: ["tres sillas"],
+            ideal: "tres sillas",
+            note: "el sustantivo es plural: tres sillas."
+          },
+          {
+            sentence: 'Tengo <span class="error">dos hermano</span> y una hermana.',
+            accept: ["dos hermanos"],
+            ideal: "dos hermanos",
+            note: "'Dos' es plural: dos hermanos."
+          },
+          {
+            sentence: '<span class="error">El martes</span> tengo clase de español.',
+            accept: ["el martes", "correcto", "los martes"],
+            ideal: "correcto",
+            note: "En un día específico de la semana usar el singular con artículo: el martes. En plural = rutina o hábito"
+          },
+          {
+            sentence: '<span class="error">Los agua</span> del río está fría.',
+            accept: ["el agua"],
+            ideal: "el agua",
+            note: "'Agua' es femenino pero es 'el' en singular por el sonido a: el agua."
+          },
+          {
+            sentence: 'Compré <span class="error">un zapatos</span> nuevo.',
+            accept: ["un zapato", "unos zapatos"],
+            ideal: "un zapato / unos zapatos",
+            note: "El artículo y el sustantivo: un zapato (singular) o unos zapatos (plural)."
+          },
+          {
+            sentence: 'En el parque hay <span class="error">muchos árbol</span>.',
+            accept: ["muchos árboles"],
+            ideal: "muchos árboles",
+            note: "'Muchos' es plural, y el sustantivo también es plural: muchos árboles."
+          },
+          {
+            sentence: 'Voy al mercado <span class="error">el viernes</span> por la tarde.',
+            accept: ["el viernes", "correcto", "los viernes"],
+            ideal: "correcto",
+            note: "'El viernes' es un día específico. 'Los viernes' es un hábito semanal."
+          }
+        ]
+      },
+      {
+        id: "presente",
+        name: "Presente",
+        icon: "🙂",
+        badge: "badge-verb",
+        label: "Presente",
+        desc: "Marcar el error en presente y escribir la respuesta correcta. ¡Importante! no hay errores en todas. Entonces, escribir 'correcto'",
+        items: [
+          {
+            sentence: 'María <span class="error">sales</span> todos los días a caminar.',
+            accept: ["sale"],
+            ideal: "sale",
+            note: "'Salir' en tercera persona (ella) es 'sale'. 'Sales': tú sales."
+          },
+          {
+            sentence: 'Yo <span class="error">estoy</span> abogada.',
+            accept: ["soy"],
+            ideal: "soy",
+            note: "Para profesiones y características, usar el verbo 'ser': yo soy abogada. 'Estar' es un estado temporal."
+          },
+          {
+            sentence: 'Nosotros <span class="error">hablan</span> español en casa.',
+            accept: ["hablamos"],
+            ideal: "hablamos",
+            note: "'Hablar' en primera persona del plural es 'hablamos'. 'Hablan' corresponde a ellos/ellas."
+          },
+          {
+            sentence: 'Ellos <span class="error">viene</span> en tren desde Buenos Aires.',
+            accept: ["vienen"],
+            ideal: "vienen",
+            note: "'Venir' en ellos es 'vienen'. 'Viene' es (él/ella)."
+          },
+          {
+            sentence: 'Hoy <span class="error">estoy</span> muy cansado porque dormí poco.',
+            accept: ["estoy", "correcto", "no hay error"],
+            ideal: "correcto",
+            note: "'Estar' es correcto: cansado hoy, no siempre."
+          },
+          {
+            sentence: 'Tú <span class="error">tiene</span> que estudiar más.',
+            accept: ["tienes"],
+            ideal: "tienes",
+            note: "'Tener' es 'tú tienes'. 'Tiene' es él/ella/eso."
+          },
+          {
+            sentence: 'Mi perro <span class="error">eres</span> muy juguetón.',
+            accept: ["es"],
+            ideal: "es",
+            note: "'mi perro' es 'eso + es' (ser)."
+          },
+          {
+            sentence: 'Yo <span class="error">leo</span> el periódico cada mañana.',
+            accept: ["leo", "correcto", "correcta"],
+            ideal: "correcto",
+            note: "'Leo' es el verbo 'leer': yo leo. ¡Es correcto!"
+          },
+          {
+            sentence: 'Ustedes <span class="error">vive</span> cerca de la escuela.',
+            accept: ["viven"],
+            ideal: "viven",
+            note: "'Vivir' (ustedes) es 'viven'. 'Vive' es con él/ella."
+          },
+          {
+            sentence: '¿Tú <span class="error">trabajas</span> los sábados?',
+            accept: ["trabajas", "correcto", "correcta"],
+            ideal: "trabajas / correcto",
+            note: "Tú trabajas - ¡Es correcto!."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: "B2",
+    name: "Intermedio avanzado",
+    topics: [
+      {
+        id: "pronombres",
+        name: "Pronombres y concordancia",
+        icon: "🙂",
+        badge: "badge-pron",
+        label: "Pronombres / concordancia",
+        desc: "Identificar los errores y escribir la versión correcta. ¡Atención! No todas las oraciones son incorrectas. De ser así, puedes escribir 'correcto'",
+        items: [
+          {
+            sentence: 'Las propuestas que presentaron los estudiantes <span class="error">se evaluaba</span> cada semestre.',
+            accept: ["se evaluaban", "eran evaluadas", "las evaluaban"],
+            ideal: "se evaluaban",
+            note: "El sujeto 'las propuestas' es plural, por lo que el verbo pronominal debe concordar: se evaluaban."
+          },
+          {
+            sentence: 'Después del accidente, los conductores <span class="error">se les quedaron con miedo</span> de conducir de noche.',
+            accept: ["tuvieron miedo", "quedaron con miedo", "sintieron miedo", "les entró miedo"],
+            ideal: "tuvieron miedo / quedaron con miedo",
+            note: "'Se les quedaron' mezcla construcciones innecesariamente. Lo más natural: 'quedaron con miedo de conducir de noche' o 'tuvieron miedo de conducir de noche'."
+          },
+          {
+            sentence: 'En la reunión había <span class="error">interrupciones frecuentes</span> que dificultaban el debate.',
+            accept: ["interrupciones frecuentes", "correcto", "correcta", "interrupciones con frecuencia", "frecuentes interrupciones"],
+            ideal: "interrupciones frecuentes",
+            note: "El adjetivo 'frecuentes' va normalmente pospuesto. ¡Es correcta!"
+          }
+        ]
+      },
+      {
+        id: "orden",
+        name: "Orden sintáctico",
+        icon: "🙂",
+        badge: "badge-orden",
+        label: "Orden sintáctico",
+        desc: "Identifica los errores y escribe la versión correcta, de forma completa. ¡Atención! No todas las oraciones son incorrectas. De ser así, puedes escribir 'correcto'",
+        items: [
+          {
+            sentence: 'El informe analiza <span class="error">no solo los beneficios económicos</span> sino también los riesgos sociales del proyecto.',
+            accept: ["no solo los beneficios", "correcto", "correcta", "no solamente los beneficios", "no únicamente los beneficios"],
+            ideal: "no solo los beneficios económicos",
+            note: "La correlación 'no solo... sino también' funciona correctamente aquí. ¡La oración es correcta!"
+          },
+          {
+            sentence: 'Vivir en <span class="error">el lugar donde los produce</span> el calor extremo puede ser muy peligroso.',
+            accept: ["el lugar donde se produce", "donde se produce el calor", "zonas donde se produce"],
+            ideal: "el lugar donde se produce el calor extremo",
+            note: "'El lugar donde los produce' usa el pronombre 'los' sin referente claro. Se trata de un verbo impersonal: 'donde se produce el calor extremo'."
+          },
+          {
+            sentence: 'Hay que prestar atención <span class="error">no solo la contaminación del aire</span> sino también a la del agua.',
+            accept: ["no solo a la contaminación", "no solamente a la contaminación"],
+            ideal: "no solo a la contaminación del aire",
+            note: "Con 'prestar atención a', la correlación exige 'no solo a X sino también a Y'. La preposición 'a' debe ir incluida dentro de cada término."
+          }
+        ]
+      }
+    ]
+  }
+];
+
+// ══════════════════════════════════════════
+//  ESTADO
+// ══════════════════════════════════════════
+let currentLevel = null;
+let currentTopic = null;
+let isRandom     = false;
+
+// ══════════════════════════════════════════
+//  STATUS BAR
+// ══════════════════════════════════════════
+function setStatus(msg, level) {
+  document.getElementById('status-panel').textContent = msg;
+  document.getElementById('status-level').textContent = level ? 'Nivel: ' + level : '';
+}
+
+// ══════════════════════════════════════════
+//  NIVEL
+// ══════════════════════════════════════════
+function buildLevelSelector() {
+  const grid = document.getElementById('level-grid');
+  grid.innerHTML = '';
+  levels.forEach(lv => {
+    const totalItems = lv.topics.reduce((s, t) => s + t.items.length, 0);
+    const btn = document.createElement('button');
+    btn.className = 'level-btn';
+    btn.innerHTML = `
+      <span class="lv-code">${lv.id}</span>
+      <span class="lv-name">${lv.name}</span>
+      <span class="lv-count">${lv.topics.length} bloque${lv.topics.length !== 1 ? 's' : ''} · ${totalItems} ejercicios</span>
+    `;
+    btn.onclick = () => goToTopics(lv);
+    grid.appendChild(btn);
+  });
+  setStatus('Selecciona un nivel para comenzar.');
+}
+
+// ══════════════════════════════════════════
+//  TEMAS
+// ══════════════════════════════════════════
+function goToTopics(level) {
+  currentLevel = level;
+  document.getElementById('level-screen').style.display = 'none';
+  document.getElementById('selector-screen').classList.add('active');
+  document.getElementById('selector-title').textContent = `Nivel ${level.id} — ¿Qué bloque quieres practicar?`;
+  document.getElementById('selector-desc').textContent = 'Selecciona un bloque o elige aleatorio.';
+  buildTopicGrid(level);
+  setStatus('Nivel ' + level.id + ' seleccionado. Elige un bloque.', level.id);
+}
+
+function buildTopicGrid(level) {
+  const grid = document.getElementById('topic-grid');
+  grid.innerHTML = '';
+  level.topics.forEach(t => {
+    const btn = document.createElement('button');
+    btn.className = 'topic-btn';
+    btn.innerHTML = `
+      <span class="t-icon">${t.icon}</span>
+      <span class="t-name">${t.name}</span>
+      <span class="t-count">${t.items.length} ejercicio${t.items.length !== 1 ? 's' : ''}</span>
+    `;
+    btn.onclick = () => startTopic(t, false);
+    grid.appendChild(btn);
+  });
+}
+
+function startRandom() {
+  const topic = currentLevel.topics[Math.floor(Math.random() * currentLevel.topics.length)];
+  startTopic(topic, true);
+}
+
+// ══════════════════════════════════════════
+//  EJERCICIOS
+// ══════════════════════════════════════════
+function startTopic(topic, random) {
+  currentTopic = topic;
+  isRandom = random;
+  document.getElementById('selector-screen').classList.remove('active');
+  document.getElementById('exercise-screen').classList.add('active');
+
+  const titleEl = document.getElementById('ex-title');
+  titleEl.innerHTML = random
+    ? topic.name + '<span class="random-reveal">🎲 aleatorio</span>'
+    : topic.name;
+  document.getElementById('ex-subtitle').textContent = `Nivel ${currentLevel.id} · Corrección de errores`;
+  document.getElementById('ex-desc').textContent = topic.desc || '';
+  buildItems(topic);
+  setStatus(topic.name + ' — ' + topic.items.length + ' ejercicios.', currentLevel.id);
+}
+
+function buildItems(topic) {
+  const container = document.getElementById('items-container');
+  container.innerHTML = '';
+  topic.items.forEach((item, i) => {
+    const n = i + 1;
+    const card = document.createElement('div');
+    card.className = 'item-card';
+    card.innerHTML = `
+      <div class="item-num">Ejercicio ${n} de ${topic.items.length}</div>
+      <span class="badge ${topic.badge}">${topic.label}</span>
+      <div class="item-sentence">${item.sentence}</div>
+      <div class="input-row">
+        <input class="corr-input" placeholder="Escribe la forma correcta..." id="in-${n}">
+        <button class="win-btn" onclick="check(${n})">Comprobar</button>
+      </div>
+      <div class="feedback" id="fb-${n}"></div>
+      <div class="note" id="note-${n}"></div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+// ══════════════════════════════════════════
+//  NAVEGACIÓN
+// ══════════════════════════════════════════
+function goBackToTopics() {
+  document.getElementById('exercise-screen').classList.remove('active');
+  document.getElementById('items-container').innerHTML = '';
+  document.getElementById('score-bar').classList.remove('visible');
+  currentTopic = null;
+  document.getElementById('selector-screen').classList.add('active');
+  setStatus('Nivel ' + currentLevel.id + ' — elige un bloque.', currentLevel.id);
+}
+
+function goBackToLevels() {
+  document.getElementById('selector-screen').classList.remove('active');
+  document.getElementById('level-screen').style.display = '';
+  currentLevel = null;
+  setStatus('Selecciona un nivel para comenzar.');
+}
+
+// ══════════════════════════════════════════
+//  CORRECCIÓN
+// ══════════════════════════════════════════
+function normalize(s) {
+  return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+}
+
+function check(n) {
+  if (!currentTopic) return;
+  const item = currentTopic.items[n - 1];
+  const input = document.getElementById('in-' + n).value;
+  const fb    = document.getElementById('fb-' + n);
+  const note  = document.getElementById('note-' + n);
+  const norm  = normalize(input);
+  if (!norm) return;
+
+  const matched = item.accept.some(a => norm.includes(normalize(a)));
+  if (matched) {
+    fb.className = 'feedback correct';
+    fb.textContent = '✓ Correcto';
+    note.textContent = item.note;
+  } else {
+    fb.className = 'feedback incorrect';
+    fb.textContent = '✗ Revisa tu respuesta e intenta de nuevo.';
+    note.textContent = '';
+  }
+}
+
+function showAll() {
+  if (!currentTopic) return;
+  currentTopic.items.forEach((item, i) => {
+    const n    = i + 1;
+    const fb   = document.getElementById('fb-' + n);
+    const note = document.getElementById('note-' + n);
+    fb.className = 'feedback show-ans';
+    fb.textContent = 'Respuesta: ' + item.ideal;
+    note.textContent = item.note;
+  });
+}
+
+function calcScore() {
+  if (!currentTopic) return;
+  let correct = 0;
+  const total = currentTopic.items.length;
+  currentTopic.items.forEach((item, i) => {
+    const norm = normalize(document.getElementById('in-' + (i + 1)).value);
+    if (norm && item.accept.some(a => norm.includes(normalize(a)))) correct++;
+  });
+  const bar = document.getElementById('score-bar');
+  bar.classList.add('visible');
+  document.getElementById('score-num').textContent = correct + '/' + total;
+  const ratio = total > 0 ? correct / total : 0;
+  const msgs = [
+    'Sigue practicando, ¡tú puedes!.',
+    '¡Ya casi!, revisa los errores con la explicación.',
+    'Bien, ya puedes usar las frases correctamente.',
+    '¡Excelente! Nivel completado.'
+  ];
+  const idx = ratio < 0.25 ? 0 : ratio < 0.5 ? 1 : ratio < 1 ? 2 : 3;
+  document.getElementById('score-label').textContent = '— ' + msgs[idx];
+  setStatus('Resultado: ' + correct + ' de ' + total + ' correctos.', currentLevel.id);
+}
+
+function resetExercise() {
+  if (!currentTopic) return;
+  currentTopic.items.forEach((_, i) => {
+    const n = i + 1;
+    document.getElementById('in-' + n).value = '';
+    const fb = document.getElementById('fb-' + n);
+    fb.className = 'feedback';
+    fb.textContent = '';
+    document.getElementById('note-' + n).textContent = '';
+  });
+  document.getElementById('score-bar').classList.remove('visible');
+  setStatus('Ejercicio reiniciado.', currentLevel.id);
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.classList.contains('corr-input')) {
+    check(parseInt(e.target.id.replace('in-', '')));
+  }
+});
+
+buildLevelSelector();
+</script>
+</body>
+</html>
